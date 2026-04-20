@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTube Elite - Final Glass Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body { 
+            background-color: #020202; 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Logic */
+        .glass-blur { 
+            background: rgba(15, 15, 15, 0.75); 
+            backdrop-filter: blur(30px) saturate(180%); 
+            -webkit-backdrop-filter: blur(30px) saturate(180%); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Ambient Glow & Shadow */
+        .aura {
+            box-shadow: 0 0 100px -20px rgba(255, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card { 
+            transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+        }
+        
+        .glass-card:hover { 
+            transform: translateY(-8px); 
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 0, 0, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-glow {
+            background: linear-gradient(45deg, #ff0000, #cc0000);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .loader-spin { 
+            width: 20px; height: 20px; 
+            border: 3px solid rgba(255,0,0,0.2); 
+            border-top: 3px solid #ff0000; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .no-scroll::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="pb-24 lg:pb-0">
+
+    <header class="glass-blur fixed top-0 w-full h-16 flex items-center justify-between px-6 z-[100]">
+        <div class="flex items-center gap-3" onclick="location.reload()">
+            <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center aura">
+                <i data-lucide="play" class="fill-white text-white w-5 h-5"></i>
+            </div>
+            <span class="font-black text-xl tracking-tighter italic">ELITE<span class="text-red-600">TV</span></span>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div id="loading-box" class="hidden flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                <div class="loader-spin"></div>
+                <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Mastering</span>
+            </div>
+            <label for="file-up" class="btn-glow text-white px-6 py-2 rounded-full font-black text-[10px] tracking-widest cursor-pointer uppercase">
+                Upload
+            </label>
+            <input type="file" id="file-up" accept="video/*" class="hidden">
+        </div>
+    </header>
+
+    <main class="pt-28 px-6 lg:px-12 max-w-[2200px] mx-auto">
+        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-8"></div>
+        <div id="empty" class="hidden text-center py-56 opacity-10">
+            <i data-lucide="video" class="w-24 h-24 mx-auto mb-4"></i>
+            <p class="text-2xl font-black uppercase tracking-[0.3em]">No Media Found</p>
+        </div>
+    </main>
+
+    <div id="player" class="fixed inset-0 bg-[#020202] z-[200] hidden flex flex-col animate-in slide-in-from-bottom duration-500">
+        <div class="h-16 flex items-center px-6 glass-blur justify-between">
+            <button onclick="closeP()" class="flex items-center gap-2 text-[10px] font-black tracking-widest text-gray-400 hover:text-white transition">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> DISMISS
+            </button>
+            <div class="w-8"></div>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
+            <div class="flex-1 overflow-y-auto p-0 lg:p-10 no-scroll">
+                <div class="max-w-[1300px] mx-auto">
+                    <div class="aura rounded-none lg:rounded-3xl overflow-hidden bg-black aspect-video">
+                        <video id="v-obj" controls class="w-full h-full"></video>
+                    </div>
+                    <div class="p-8 lg:px-2">
+                        <h1 id="p-title" class="text-2xl lg:text-4xl font-black tracking-tighter"></h1>
+                        <div class="flex items-center gap-6 mt-10 border-t border-white/5 pt-10">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-purple-900"></div>
+                            <div class="flex-1">
+                                <p class="font-black text-lg italic uppercase">Studio Master</p>
+                                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Verified Account</p>
+                            </div>
+                            <button class="bg-white text-black px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-[450px] glass-blur border-l border-white/5 p-8 overflow-y-auto no-scroll flex flex-col gap-6">
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Up Next</p>
+                <div id="sidebar" class="flex flex-col gap-6"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
+        <div class="bg-[#111] p-10 rounded-[40px] w-full max-w-sm border border-white/10 text-center aura">
+            <h2 class="text-2xl font-black mb-4 tracking-tighter">Delete Video?</h2>
+            <p class="text-gray-400 text-sm mb-10">This cannot be undone.</p>
+            <div class="flex flex-col gap-3">
+                <button id="confirm-del" class="bg-red-600 p-5 rounded-2xl font-black uppercase text-xs tracking-widest">Yes, Delete</button>
+                <button onclick="hideNuke()" class="p-5 rounded-2xl font-black uppercase text-xs tracking-widest text-gray-500">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="lg:hidden fixed bottom-0 w-full h-18 glass-blur flex justify-around items-center px-4 z-[100] pb-2">
+        <div class="flex flex-col items-center text-red-600"><i data-lucide="home"></i></div>
+        <div class="w-14 h-14 btn-glow rounded-full -mt-8 flex items-center justify-center border-4 border-[#020202]" onclick="document.getElementById('file-up').click()">
+            <i data-lucide="plus" class="text-white w-8 h-8"></i>
+        </div>
+        <div class="flex flex-col items-center text-gray-500"><i data-lucide="library"></i></div>
+    </div>
+
+    <script>
+        let db;
+        let nukeId = null;
+        const request = indexedDB.open("Elite_Final_Storage", 1);
+        request.onupgradeneeded = (e) => { e.target.result.createObjectStore("vids", { keyPath: "id", autoIncrement: true }); };
+        request.onsuccess = (e) => { db = e.target.result; sync(); };
+
+        document.getElementById('file-up').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('loading-box').classList.remove('hidden');
+
+            const thumb = await captureThumb(file);
+            const tx = db.transaction("vids", "readwrite");
+            tx.objectStore("vids").add({ title: file.name.split('.')[0], blob: file, thumb: thumb });
+            tx.oncomplete = () => {
+                document.getElementById('loading-box').classList.add('hidden');
+                sync();
+            };
+        });
+
+        // THE TANK: Bulletproof Thumbnail Engine
+        async function captureThumb(file) {
+            return new Promise((res) => {
+                const video = document.createElement('video');
+                const url = URL.createObjectURL(file);
+                
+                // CRITICAL: Attach to DOM for mobile browsers to "see" it
+                video.style.position = 'fixed';
+                video.style.top = '-9999px';
+                video.muted = true;
+                video.playsInline = true;
+                document.body.appendChild(video);
+                
+                video.src = url;
+                video.onloadedmetadata = () => {
+                    video.currentTime = 2.0; // Seek to 2 seconds
+                };
+
+                video.onseeked = async () => {
+                    // Give it time to paint
+                    await new Promise(r => setTimeout(r, 800));
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 1280; canvas.height = 720;
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    ctx.drawImage(video, 0, 0, 1280, 720);
+                    
+                    const data = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    document.body.removeChild(video);
+                    URL.revokeObjectURL(url);
+                    res(data);
+                };
+
+                video.onerror = () => res('https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=640');
+            });
+        }
+
+        function sync() {
+            const g = document.getElementById('grid');
+            g.innerHTML = '';
+            db.transaction("vids").objectStore("vids").openCursor().onsuccess = (e) => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    const v = cursor.value;
+                    const card = document.createElement('div');
+                    card.className = "glass-card p-4 group";
+                    card.innerHTML = `
+                        <div class="relative aspect-video rounded-2xl overflow-hidden bg-zinc-900 cursor-pointer mb-5" onclick="watch(${v.id})">
+                            <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-110 transition duration-1000">
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                                <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-black text-xs uppercase tracking-tight line-clamp-2 cursor-pointer" onclick="watch(${v.id})">${v.title}</h3>
+                                <p class="text-[9px] text-gray-600 mt-2 font-black uppercase tracking-widest">Studio 2026</p>
+                                <button onclick="showNuke(${v.id})" class="mt-4 text-red-600 text-[8px] font-black uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                    g.appendChild(card);
+                    cursor.continue();
+                } else if (g.children.length === 0) {
+                    document.getElementById('empty').classList.remove('hidden');
+                } else {
+                    document.getElementById('empty').classList.add('hidden');
+                }
+                lucide.createIcons();
+            };
+        }
+
+        function watch(id) {
+            db.transaction("vids").objectStore("vids").get(id).onsuccess = (e) => {
+                const v = e.target.result;
+                const p = document.getElementById('v-obj');
+                p.src = URL.createObjectURL(v.blob);
+                document.getElementById('p-title').innerText = v.title;
+                document.getElementById('player').classList.remove('hidden');
+                p.play();
+                loadSide(id);
+            };
+        }
+
+        function loadSide(cur) {
+            const s = document.getElementById('sidebar');
+            s.innerHTML = '';
+            db.transaction("vids").objectStore("vids").openCursor().onsuccess = (e) => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    if (cursor.value.id !== cur) {
+                        const i = document.createElement('div');
+                        i.className = "flex gap-4 cursor-pointer group bg-white/5 p-3 rounded-2xl border border-white/5";
+                        i.onclick = () => watch(cursor.value.id);
+                        i.innerHTML = `
+                            <img src="${cursor.value.thumb}" class="w-32 aspect-video rounded-xl object-cover shrink-0">
+                            <div class="min-w-0">
+                                <h4 class="text-[10px] font-black uppercase group-hover:text-red-600 transition">${cursor.value.title}</h4>
+                                <p class="text-[8px] text-gray-500 mt-1 uppercase font-black">Next Up</p>
+                            </div>`;
+                        s.appendChild(i);
+                    }
+                    cursor.continue();
+                }
+            };
+        }
+
+        function closeP() {
+            const p = document.getElementById('v-obj');
+            p.pause(); p.src = "";
+            document.getElementById('player').classList.add('hidden');
+        }
+
+        function showNuke(id) {
+            nukeId = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+        function hideNuke() { document.getElementById('delete-modal').classList.add('hidden'); }
+
+        document.getElementById('confirm-del').onclick = () => {
+            const tx = db.transaction("vids", "readwrite");
+            tx.objectStore("vids").delete(nukeId);
+            tx.oncomplete = () => { sync(); hideNuke(); };
+        };
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
